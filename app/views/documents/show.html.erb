@@ -1,0 +1,42 @@
+<% content_for :title, "#{@document.title} | Document Portal" %>
+
+<section class="form-page">
+  <div class="panel form-panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Document details</p>
+        <h1><%= @document.title %></h1>
+      </div>
+      <%= link_to "Back", root_path, class: "btn btn-ghost" %>
+    </div>
+
+    <div class="detail-grid">
+      <div>
+        <span>Folder</span>
+        <strong><%= @document.folder_label %></strong>
+      </div>
+      <div>
+        <span>File name</span>
+        <strong><%= @document.file_name %></strong>
+      </div>
+      <div>
+        <span>Path</span>
+        <strong><%= @document.display_path %></strong>
+      </div>
+      <div>
+        <span>File size</span>
+        <strong><%= @document.file_size %></strong>
+      </div>
+      <div>
+        <span>Uploaded by</span>
+        <strong><%= @document.uploaded_by.name %></strong>
+      </div>
+    </div>
+
+    <p class="detail-copy"><%= @document.description.presence || "No description added." %></p>
+
+    <% unless admin_user? %>
+      <%= button_to "Request OTP", request_otp_document_path(@document), method: :post, class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</section>

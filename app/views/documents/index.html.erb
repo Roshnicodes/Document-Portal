@@ -1,0 +1,154 @@
+<% content_for :title, "Dashboard | Document Portal" %>
+
+<section class="page-hero">
+  <div>
+    <p class="eyebrow"><%= admin_user? ? "Admin department" : "User department" %></p>
+    <h1><%= admin_user? ? "Document control center" : "Secure file library" %></h1>
+    <p><%= admin_user? ? "Monitor preloaded GIS folders, review requests, and control folder downloads with OTP approval." : "Choose a GIS folder, request the OTP from the admin, and download the complete folder as a ZIP file." %></p>
+  </div>
+</section>
+
+<section class="stats-grid">
+  <div class="stat-card">
+    <span>Matching component files</span>
+    <strong><%= @search_performed ? @documents.size : "-" %></strong>
+  </div>
+  <div class="stat-card">
+    <span>Matching folders</span>
+    <strong><%= @search_performed ? @total_downloadable_folders : "-" %></strong>
+  </div>
+  <div class="stat-card">
+    <span>Your role</span>
+    <strong><%= current_user.role.titleize %></strong>
+  </div>
+</section>
+
+<section class="content-grid <%= "single-column" unless admin_user? %>">
+  <div class="panel">
+    <div class="panel-heading">
+      <div>
+        <h2><%= @current_folder.present? ? File.basename(@current_folder) : "Search folders" %></h2>
+        <% if @search_performed %>
+          <nav class="breadcrumb">
+            <% @breadcrumbs.each_with_index do |crumb, index| %>
+              <% if index.positive? %><span>/</span><% end %>
+              <%= link_to crumb[:name], documents_path({ folder: crumb[:key] }.merge(@filter_params)) %>
+            <% end %>
+          </nav>
+        <% end %>
+      </div>
+      <span><%= @search_performed ? pluralize(@folder_items.size, "folder") : "Hidden" %></span>
+    </div>
+
+    <%= form_with url: documents_path, method: :get, local: true, class: "folder-search" do |form| %>
+      <% @folder_level_options.each_with_index do |options, index| %>
+        <% field_name = :"folder_level_#{index}" %>
+        <% label_text = @folder_select_labels[index] || "Folder level #{index + 1}" %>
+        <div class="select-field">
+          <%= form.label field_name, label_text %>
+          <%= form.select field_name,
+                          options_for_select(options, @selected_folder_parts[index]),
+                          { prompt: "Select #{label_text.downcase}" },
+                          class: "search-input",
+                          disabled: index.positive? && @selected_folder_parts[index - 1].blank?,
+                          onchange: "this.form.requestSubmit()" %>
+        </div>
+      <% end %>
+      <div class="select-field search-field">
+        <%= form.label :q, "Search village/code" %>
+        <%= form.search_field :q, value: @search_query, placeholder: "Village name or code, for example 470604", class: "search-input" %>
+      </div>
+      <%= form.submit "Show", class: "btn btn-primary" %>
+      <% if @search_performed %>
+        <%= link_to "Clear", documents_path, class: "btn btn-ghost" %>
+      <% end %>
+    <% end %>
+
+    <% if @search_performed && @folder_items.any? %>
+      <div class="folder-list">
+        <% @folder_items.each do |folder| %>
+          <section class="folder-group">
+            <article class="document-row folder-download-row">
+              <div class="file-icon folder-icon"><%= folder[:leaf] ? "ZIP" : "DIR" %></div>
+              <div>
+                <h3><%= folder[:name] %></h3>
+                <p><%= folder[:key] %></p>
+                <span><%= pluralize(folder[:documents].size, "component file") %> · <%= number_to_human_size(folder[:size]) %></span>
+              </div>
+              <div class="row-actions">
+                <% if folder[:leaf] %>
+                  <% if admin_user? %>
+                    <span class="status-pill">Protected folder</span>
+                  <% else %>
+                    <%= button_to "Request OTP", request_folder_otp_documents_path(folder_key: folder[:key]), method: :post, class: "btn btn-primary" %>
+                  <% end %>
+                <% else %>
+                  <%= link_to "Open", documents_path({ folder: folder[:key] }.merge(@filter_params)), class: "btn btn-ghost" %>
+                <% end %>
+              </div>
+            </article>
+          </section>
+        <% end %>
+      </div>
+    <% elsif @search_performed %>
+      <div class="empty-state">
+        <h3>No matching folders</h3>
+        <p>No folder is available for the selected state, district, block, village, or search term.</p>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <h3>Select location</h3>
+        <p>Folders and files are hidden until you select a state, district, block, village, or search by village code.</p>
+      </div>
+    <% end %>
+  </div>
+
+  <% if admin_user? %>
+    <div class="panel activity-panel">
+      <div class="panel-heading">
+        <h2>Recent OTP requests</h2>
+        <span>Live log</span>
+      </div>
+
+      <% if @recent_requests&.any? %>
+        <div class="activity-list">
+          <% @recent_requests.each do |request| %>
+            <div class="activity-item">
+              <div class="activity-topline">
+                <strong>Request #<%= request.id %></strong>
+                <span class="status-pill"><%= request.status_label %></span>
+              </div>
+              <dl class="activity-details">
+                <div>
+                  <dt>User</dt>
+                  <dd><%= request.user.name %> (<%= request.user.email %>)</dd>
+                </div>
+                <div>
+                  <dt>Download</dt>
+                  <dd><%= request.target_name %></dd>
+                </div>
+                <div>
+                  <dt>Path</dt>
+                  <dd><%= request.target_path %></dd>
+                </div>
+                <div>
+                  <dt>Requested</dt>
+                  <dd><%= time_ago_in_words(request.created_at) %> ago</dd>
+                </div>
+                <div>
+                  <dt>Expires</dt>
+                  <dd><%= request.expires_at.future? ? "in #{distance_of_time_in_words(Time.current, request.expires_at)}" : "Expired" %></dd>
+                </div>
+              </dl>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-state compact">
+          <h3>No requests</h3>
+          <p>New user requests will appear here.</p>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</section>

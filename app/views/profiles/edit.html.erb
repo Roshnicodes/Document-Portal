@@ -1,0 +1,69 @@
+<% content_for :title, "Profile | Document Portal" %>
+
+<section class="form-page">
+  <div class="panel form-panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Profile</p>
+        <h1>Account settings</h1>
+      </div>
+      <%= link_to "Back", root_path, class: "btn btn-ghost" %>
+    </div>
+
+    <div class="detail-grid">
+      <div>
+        <span>Name</span>
+        <strong><%= @user.name %></strong>
+      </div>
+      <div>
+        <span>Email</span>
+        <strong><%= @user.email %></strong>
+      </div>
+      <div>
+        <span>Role</span>
+        <strong><%= @user.role.titleize %></strong>
+      </div>
+    </div>
+
+    <%= form_with model: @user, url: profile_path, method: :patch, class: "form-stack" do |form| %>
+      <% if admin_user? %>
+        <label>
+          Admin OTP mobile number
+          <%= form.telephone_field :admin_mobile, required: true, inputmode: "numeric", pattern: "[0-9]{10,15}", maxlength: 15, placeholder: "9876543210" %>
+        </label>
+
+        <% if @user.errors[:admin_mobile].any? %>
+          <p class="field-error"><%= @user.errors[:admin_mobile].to_sentence %></p>
+        <% end %>
+      <% end %>
+
+      <div class="form-divider"></div>
+
+      <label>
+        Current password
+        <%= form.password_field :current_password, autocomplete: "current-password", placeholder: "Current password" %>
+      </label>
+      <% if @user.errors[:current_password].any? %>
+        <p class="field-error"><%= @user.errors[:current_password].to_sentence %></p>
+      <% end %>
+
+      <label>
+        New password
+        <%= form.password_field :password, autocomplete: "new-password", placeholder: "New password" %>
+      </label>
+      <% if @user.errors[:password].any? %>
+        <p class="field-error"><%= @user.errors[:password].to_sentence %></p>
+      <% end %>
+
+      <label>
+        Confirm new password
+        <%= form.password_field :password_confirmation, autocomplete: "new-password", placeholder: "Confirm new password" %>
+      </label>
+      <% if @user.errors[:password_confirmation].any? %>
+        <p class="field-error"><%= @user.errors[:password_confirmation].to_sentence %></p>
+      <% end %>
+
+      <%= form.submit "Save changes", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</section>

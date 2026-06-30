@@ -1,0 +1,23 @@
+<% content_for :title, "Verify Folder OTP | Document Portal" %>
+
+<section class="form-page">
+  <div class="panel otp-panel">
+    <div class="otp-visual">
+      <span></span><span></span><span></span>
+    </div>
+
+    <p class="eyebrow">Folder OTP verification</p>
+    <h1>Unlock <%= @download_request.folder_name %> download</h1>
+    <p class="lead">The OTP has been sent to the admin. Enter the correct OTP to download the complete folder as a ZIP file.</p>
+
+    <%= form_with url: confirm_folder_otp_documents_path(request_id: @download_request&.id), class: "form-stack otp-form" do |form| %>
+      <label>
+        6 digit OTP
+        <%= form.text_field :otp, required: true, inputmode: "numeric", maxlength: 6, pattern: "[0-9]{6}", placeholder: "123456" %>
+      </label>
+      <%= form.submit "Verify and download folder", class: "btn btn-primary" %>
+    <% end %>
+
+    <%= link_to "Back to folders", root_path, class: "subtle-link" %>
+  </div>
+</section>
