@@ -68,7 +68,7 @@
       <div class="folder-list">
         <% @folder_items.each do |folder| %>
           <section class="folder-group">
-            <article class="document-row folder-download-row">
+            <article class="document-row folder-download-row <%= "with-purpose-request" if folder[:leaf] && !admin_user? %>">
               <div class="file-icon folder-icon"><%= folder[:leaf] ? "ZIP" : "DIR" %></div>
               <div>
                 <h3><%= folder[:name] %></h3>
@@ -80,7 +80,19 @@
                   <% if admin_user? %>
                     <span class="status-pill">Protected folder</span>
                   <% else %>
-                    <%= button_to "Request OTP", request_folder_otp_documents_path(folder_key: folder[:key]), method: :post, class: "btn btn-primary" %>
+                    <%= form_with url: request_folder_otp_documents_path(folder_key: folder[:key]), method: :post, local: true, class: "otp-request-form" do |form| %>
+                      <div class="purpose-field">
+                        <div>
+                          <%= form.label :download_purpose, "Purpose of download" %>
+                          <span>Minimum <%= DownloadRequest::MIN_PURPOSE_WORDS %> words required</span>
+                        </div>
+                        <%= form.text_area :download_purpose, required: true, maxlength: 1000, rows: 5, placeholder: "Write the download purpose in at least 50 words" %>
+                      </div>
+                      <div class="purpose-actions">
+                        <span>OTP will be requested after purpose review.</span>
+                        <%= form.submit "Request OTP", class: "btn btn-primary" %>
+                      </div>
+                    <% end %>
                   <% end %>
                 <% else %>
                   <%= link_to "Open", documents_path({ folder: folder[:key] }.merge(@filter_params)), class: "btn btn-ghost" %>
@@ -130,6 +142,10 @@
                 <div>
                   <dt>Path</dt>
                   <dd><%= request.target_path %></dd>
+                </div>
+                <div class="wide">
+                  <dt>Purpose</dt>
+                  <dd><%= request.download_purpose.presence || "Not provided" %></dd>
                 </div>
                 <div>
                   <dt>Requested</dt>

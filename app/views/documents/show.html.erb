@@ -36,7 +36,19 @@
     <p class="detail-copy"><%= @document.description.presence || "No description added." %></p>
 
     <% unless admin_user? %>
-      <%= button_to "Request OTP", request_otp_document_path(@document), method: :post, class: "btn btn-primary" %>
+      <%= form_with url: request_otp_document_path(@document), method: :post, local: true, class: "otp-request-form document-otp-request" do |form| %>
+        <div class="purpose-field">
+          <div>
+            <%= form.label :download_purpose, "Purpose of download" %>
+            <span>Minimum <%= DownloadRequest::MIN_PURPOSE_WORDS %> words required</span>
+          </div>
+          <%= form.text_area :download_purpose, required: true, maxlength: 1000, rows: 6, placeholder: "Write the download purpose in at least 50 words" %>
+        </div>
+        <div class="purpose-actions">
+          <span>OTP will be requested after purpose review.</span>
+          <%= form.submit "Request OTP", class: "btn btn-primary" %>
+        </div>
+      <% end %>
     <% end %>
   </div>
 </section>

@@ -37,13 +37,23 @@ class DocumentsController < ApplicationController
   end
 
   def request_otp
-    request = DownloadRequest.create_with_otp!(document: @document, user: current_user)
+    unless valid_download_purpose?
+      redirect_to @document, alert: download_purpose_error_message
+      return
+    end
+
+    request = DownloadRequest.create_with_otp!(document: @document, user: current_user, download_purpose: download_purpose)
     delivery_channel = deliver_admin_otp(request)
 
     redirect_to verify_document_path(@document, request_id: request.id), notice: otp_delivery_notice(delivery_channel)
   end
 
   def request_folder_otp
+    unless valid_download_purpose?
+      redirect_back fallback_location: root_path, alert: download_purpose_error_message
+      return
+    end
+
     folder_key = params[:folder_key].to_s
     documents = documents_for_folder(folder_key)
 
@@ -55,7 +65,8 @@ class DocumentsController < ApplicationController
     request = DownloadRequest.create_folder_with_otp!(
       folder_key: folder_key,
       folder_name: File.basename(folder_key),
-      user: current_user
+      user: current_user,
+      download_purpose: download_purpose
     )
     delivery_channel = deliver_admin_otp(request)
 
@@ -131,6 +142,18 @@ class DocumentsController < ApplicationController
 
   def set_document
     @document = Document.find(params[:id])
+  end
+
+  def download_purpose
+    params[:download_purpose].to_s.squish
+  end
+
+  def valid_download_purpose?
+    download_purpose.split.size >= DownloadRequest::MIN_PURPOSE_WORDS
+  end
+
+  def download_purpose_error_message
+    "Please enter at least #{DownloadRequest::MIN_PURPOSE_WORDS} words in the purpose of download before requesting OTP."
   end
 
   def folder_keys_for(scope)

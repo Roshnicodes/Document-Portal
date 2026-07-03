@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_30_093000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_03_000100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -59,6 +59,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_093000) do
   create_table "download_requests", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "document_id"
+    t.text "download_purpose"
     t.datetime "downloaded_at"
     t.datetime "expires_at", null: false
     t.string "folder_key"
