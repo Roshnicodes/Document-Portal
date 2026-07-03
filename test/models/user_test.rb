@@ -12,4 +12,15 @@ class UserTest < ActiveSupport::TestCase
 
     assert_equal "Rajpur", user.location_scope_name
   end
+
+  test "employee code 397 is the only admin code" do
+    admin = User.new(name: "Admin", email: "admin@example.com", role: "user", password: "password123", employee_code: "397")
+    other = User.new(name: "Other", email: "other@example.com", role: "admin", password: "password123", employee_code: "398")
+
+    admin.valid?
+    other.valid?
+
+    assert admin.admin?
+    assert other.user?
+  end
 end

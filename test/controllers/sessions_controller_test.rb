@@ -27,7 +27,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
       get signed_ess_login_path("999999", signed_params("999999"))
     end
 
-    assert_redirected_to login_path
+    assert_redirected_to ess_login_path
     assert_nil session[:user_id]
   end
 
@@ -36,7 +36,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
       get signed_ess_login_path(@user.employee_code, expires_at: 5.minutes.from_now.to_i, signature: "bad")
     end
 
-    assert_redirected_to login_path
+    assert_redirected_to ess_login_path
     assert_nil session[:user_id]
   end
 
@@ -45,8 +45,15 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
       get signed_ess_login_path(@user.employee_code, signed_params(@user.employee_code, expires_at: 1.minute.ago.to_i))
     end
 
-    assert_redirected_to login_path
+    assert_redirected_to ess_login_path
     assert_nil session[:user_id]
+  end
+
+  test "ESS login page is an access fallback without password form" do
+    get ess_login_path
+
+    assert_response :unauthorized
+    assert_includes response.body, "Please open Document Portal from ESS."
   end
 
   private

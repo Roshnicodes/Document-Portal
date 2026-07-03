@@ -45,7 +45,7 @@ class EmployeeImporter
       attributes[:name] = "Employee #{attributes[:employee_code]}" if attributes[:name].blank?
       user.email = generated_email(attributes[:employee_code]) if attributes[:email].blank?
       user.assign_attributes(attributes.compact)
-      user.role = "user"
+      user.role = attributes[:employee_code] == User::ADMIN_EMPLOYEE_CODE ? "admin" : "user"
       user.password = SecureRandom.hex(24) if user.new_record?
       user.save!
 

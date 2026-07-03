@@ -1,25 +1,18 @@
 class SessionsController < ApplicationController
   def new
-    redirect_to root_path if current_user
-  end
-
-  def create
-    user = User.find_by(email: params[:email].to_s.downcase.strip)
-
-    if user&.authenticate(params[:password])
-      session[:user_id] = user.id
-      redirect_to root_path, notice: "Welcome back, #{user.name}."
-    else
-      flash.now[:alert] = "Invalid email or password."
-      render :new, status: :unprocessable_entity
-    end
+    redirect_to(current_user ? root_path : ess_login_path)
   end
 
   def ess_login
     employee_code = ess_employee_code
 
+    if employee_code.blank?
+      render plain: "Please open Document Portal from ESS.", status: :unauthorized
+      return
+    end
+
     unless valid_ess_signature?(employee_code)
-      redirect_to login_path, alert: "ESS login is not authorized."
+      redirect_to ess_login_path, alert: "ESS login is not authorized."
       return
     end
 
@@ -29,13 +22,13 @@ class SessionsController < ApplicationController
       session[:user_id] = user.id
       redirect_to root_path, notice: "Welcome, #{user.name}."
     else
-      redirect_to login_path, alert: "Employee is not available in Document Portal."
+      redirect_to ess_login_path, alert: "Employee is not available in Document Portal."
     end
   end
 
   def destroy
     reset_session
-    redirect_to login_path, notice: "Logged out successfully."
+    redirect_to ess_login_path, notice: "Logged out successfully."
   end
 
   private

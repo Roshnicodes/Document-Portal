@@ -7,7 +7,8 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
-admin = User.find_or_initialize_by(email: "admin@example.com")
+admin = User.find_or_initialize_by(employee_code: User::ADMIN_EMPLOYEE_CODE)
+admin.email = "employee-#{User::ADMIN_EMPLOYEE_CODE}@ess.local" if admin.email.blank?
 admin.assign_attributes(name: "Admin Department", role: "admin")
 admin.password = "password123" if admin.new_record?
 admin.save!
@@ -25,5 +26,5 @@ user.password = "password123" if user.new_record?
 user.save!
 
 puts "Seeded demo accounts:"
-puts "Admin: admin@example.com / password123"
+puts "Admin employee code: #{User::ADMIN_EMPLOYEE_CODE}"
 puts "User: user@example.com / password123"

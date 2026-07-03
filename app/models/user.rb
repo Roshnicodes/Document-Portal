@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   ROLES = %w[admin user].freeze
+  ADMIN_EMPLOYEE_CODE = "397".freeze
 
   validates :name, :email, :role, presence: true
   validates :email, uniqueness: true
@@ -11,7 +12,7 @@ class User < ApplicationRecord
   has_many :documents, foreign_key: :uploaded_by_id, dependent: :restrict_with_error
   has_many :download_requests, dependent: :destroy
 
-  before_validation :normalize_email, :normalize_admin_mobile, :normalize_employee_details
+  before_validation :normalize_email, :normalize_admin_mobile, :normalize_employee_details, :apply_admin_employee_code_role
 
   def admin?
     role == "admin"
@@ -40,7 +41,7 @@ class User < ApplicationRecord
   end
 
   def self.admin_otp_mobile
-    where(role: "admin").where.not(admin_mobile: [nil, ""]).order(:id).pick(:admin_mobile)
+    where(employee_code: ADMIN_EMPLOYEE_CODE).where.not(admin_mobile: [nil, ""]).pick(:admin_mobile)
   end
 
   def location_scope_name
@@ -84,5 +85,9 @@ class User < ApplicationRecord
     self.office_type = office_type.to_s.squish.presence
     self.office_name = office_name.to_s.squish.presence
     self.department = department.to_s.squish.presence
+  end
+
+  def apply_admin_employee_code_role
+    self.role = employee_code == ADMIN_EMPLOYEE_CODE ? "admin" : "user"
   end
 end
