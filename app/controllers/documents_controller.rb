@@ -8,7 +8,7 @@ class DocumentsController < ApplicationController
   before_action :require_admin, only: %i[destroy]
 
   def index
-    documents_scope = Document.includes(:uploaded_by, file_attachment: :blob).order(created_at: :desc)
+    documents_scope = visible_documents_scope(Document.includes(:uploaded_by, file_attachment: :blob)).order(created_at: :desc)
     folder_keys = folder_keys_for(documents_scope)
     @folder_max_depth = folder_max_depth(folder_keys)
     @folder_select_labels = folder_select_labels(folder_keys, @folder_max_depth)
@@ -25,6 +25,7 @@ class DocumentsController < ApplicationController
     @folder_items = folder_items_for(@current_folder)
     @breadcrumbs = breadcrumbs_for(@current_folder)
     @total_downloadable_folders = @documents.group_by(&:download_folder_key).count
+    @location_scope_name = current_user.location_scope_name unless admin_user?
     @recent_requests = DownloadRequest.includes(:document, :user).latest_first.limit(8) if admin_user?
   end
 
@@ -141,7 +142,17 @@ class DocumentsController < ApplicationController
   private
 
   def set_document
-    @document = Document.find(params[:id])
+    @document = visible_documents_scope(Document).find(params[:id])
+  end
+
+  def visible_documents_scope(scope)
+    return scope if admin_user?
+
+    location = current_user.location_scope_name
+    return scope.none if location.blank?
+
+    safe_location = ActiveRecord::Base.sanitize_sql_like(location)
+    scope.where("folder_path = ? OR folder_path LIKE ? OR folder_path LIKE ?", safe_location, "#{safe_location}/%", "%/#{safe_location}/%")
   end
 
   def download_purpose
@@ -324,7 +335,7 @@ class DocumentsController < ApplicationController
 
   def documents_for_folder(folder_key)
     safe_key = ActiveRecord::Base.sanitize_sql_like(folder_key.to_s)
-    Document.includes(file_attachment: :blob).where("folder_path LIKE ?", "#{safe_key}/%").order(:folder_path)
+    visible_documents_scope(Document.includes(file_attachment: :blob)).where("folder_path LIKE ?", "#{safe_key}/%").order(:folder_path)
   end
 
   def build_folder_zip(folder_key, documents, request_id)

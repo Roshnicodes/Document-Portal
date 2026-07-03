@@ -3,6 +3,9 @@ Rails.application.routes.draw do
 
   get "login", to: "sessions#new"
   post "login", to: "sessions#create"
+  get "ess/login", to: "sessions#ess_login", as: :ess_login
+  get "ess/login/:employee_code", to: "sessions#ess_login", as: :signed_ess_login
+  get "users/sign_in/:employee_code", to: "sessions#ess_login", as: :external_employee_sign_in
   delete "logout", to: "sessions#destroy"
   resource :profile, only: %i[edit update]
 

@@ -13,7 +13,14 @@ admin.password = "password123" if admin.new_record?
 admin.save!
 
 user = User.find_or_initialize_by(email: "user@example.com")
-user.assign_attributes(name: "User Department", role: "user")
+user.assign_attributes(
+  name: "User Department",
+  role: "user",
+  employee_code: "DEMO-USER",
+  office_type: "FCO-Rajpur",
+  office_name: "TO-Pati",
+  department: "Demo Access"
+)
 user.password = "password123" if user.new_record?
 user.save!
 

@@ -18,8 +18,8 @@
     <strong><%= @search_performed ? @total_downloadable_folders : "-" %></strong>
   </div>
   <div class="stat-card">
-    <span>Your role</span>
-    <strong><%= current_user.role.titleize %></strong>
+    <span><%= admin_user? ? "Your role" : "Data access" %></span>
+    <strong><%= admin_user? ? current_user.role.titleize : (@location_scope_name.presence || "Not mapped") %></strong>
   </div>
 </section>
 
@@ -109,8 +109,13 @@
       </div>
     <% else %>
       <div class="empty-state">
-        <h3>Select location</h3>
-        <p>Folders and files are hidden until you select a state, district, block, village, or search by village code.</p>
+        <% if !admin_user? && @location_scope_name.blank? %>
+          <h3>Location not mapped</h3>
+          <p>Your employee profile does not have an office location, so no GIS folders can be shown.</p>
+        <% else %>
+          <h3>Select location</h3>
+          <p>Folders and files are hidden until you select a state, district, block, village, or search by village code.</p>
+        <% end %>
       </div>
     <% end %>
   </div>
