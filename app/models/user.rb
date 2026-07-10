@@ -14,12 +14,23 @@ class User < ApplicationRecord
 
   before_validation :normalize_email, :normalize_admin_mobile, :normalize_employee_details, :apply_admin_employee_code_role
 
+  def effective_role
+    employee_code == ADMIN_EMPLOYEE_CODE ? "admin" : "user"
+  end
+
   def admin?
-    role == "admin"
+    effective_role == "admin"
   end
 
   def user?
-    role == "user"
+    effective_role == "user"
+  end
+
+  def ensure_canonical_role!
+    canonical_role = effective_role
+    return if role == canonical_role
+
+    persisted? ? update_column(:role, canonical_role) : self.role = canonical_role
   end
 
   def password=(value)
@@ -88,6 +99,6 @@ class User < ApplicationRecord
   end
 
   def apply_admin_employee_code_role
-    self.role = employee_code == ADMIN_EMPLOYEE_CODE ? "admin" : "user"
+    self.role = effective_role
   end
 end

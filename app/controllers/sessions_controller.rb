@@ -19,6 +19,7 @@ class SessionsController < ApplicationController
     user = User.find_by(employee_code: employee_code)
 
     if user
+      user.ensure_canonical_role!
       session[:user_id] = user.id
       redirect_to root_path, notice: "Welcome, #{user.name}."
     else

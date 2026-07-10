@@ -6,6 +6,6 @@ class AdminOtpMailer < ApplicationMailer
     @target_name = @download_request.target_name
     @user = @download_request.user
 
-    mail(to: User.where(role: "admin").pluck(:email), subject: "Document download OTP: #{@target_name}")
+    mail(to: User.where(employee_code: User::ADMIN_EMPLOYEE_CODE).pluck(:email), subject: "Document download OTP: #{@target_name}")
   end
 end

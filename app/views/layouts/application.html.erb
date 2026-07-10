@@ -31,7 +31,7 @@
           <strong>Document Portal</strong>
         <% end %>
         <nav>
-          <span><%= current_user.name %> · <%= current_user.role.titleize %></span>
+          <span><%= current_user.name %> · <%= current_user.effective_role.titleize %></span>
           <%= link_to "Profile", edit_profile_path, class: "btn btn-ghost" %>
           <%= button_to "Logout", logout_path, method: :delete, class: "btn btn-ghost" %>
         </nav>
