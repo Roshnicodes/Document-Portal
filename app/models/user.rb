@@ -1,6 +1,7 @@
 class User < ApplicationRecord
   ROLES = %w[admin user].freeze
   ADMIN_EMPLOYEE_CODE = "397".freeze
+  FULL_DATA_ACCESS_EMPLOYEE_CODES = %w[002 2 397 840 1495].freeze
 
   validates :name, :email, :role, presence: true
   validates :email, uniqueness: true
@@ -24,6 +25,10 @@ class User < ApplicationRecord
 
   def user?
     effective_role == "user"
+  end
+
+  def full_data_access?
+    full_access_employee_code? || fco_coordinator?
   end
 
   def ensure_canonical_role!
@@ -61,7 +66,7 @@ class User < ApplicationRecord
   end
 
   def location_restricted?
-    user? && location_scope_name.present?
+    user? && !full_data_access? && location_scope_name.present?
   end
 
   def self.location_name_from(value)
@@ -73,6 +78,14 @@ class User < ApplicationRecord
   end
 
   private
+
+  def full_access_employee_code?
+    FULL_DATA_ACCESS_EMPLOYEE_CODES.include?(employee_code)
+  end
+
+  def fco_coordinator?
+    designation.to_s.match?(/\Afco\s*[- ]?\s*coordinator\b/i)
+  end
 
   def normalize_email
     self.email = email.to_s.strip.downcase

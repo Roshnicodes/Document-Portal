@@ -146,7 +146,7 @@ class DocumentsController < ApplicationController
   end
 
   def visible_documents_scope(scope)
-    return scope if admin_user?
+    return scope if current_user.full_data_access?
 
     location = current_user.location_scope_name
     return scope.none if location.blank?

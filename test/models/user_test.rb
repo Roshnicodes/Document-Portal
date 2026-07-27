@@ -34,4 +34,23 @@ class UserTest < ActiveSupport::TestCase
 
     assert_equal "admin", admin.reload.role
   end
+
+  test "configured senior employee codes have full data access" do
+    assert User.new(employee_code: "002").full_data_access?
+    assert User.new(employee_code: "2").full_data_access?
+    assert User.new(employee_code: "397").full_data_access?
+    assert User.new(employee_code: "840").full_data_access?
+    assert User.new(employee_code: "1495").full_data_access?
+  end
+
+  test "only fco coordinator designation has full data access" do
+    assert User.new(designation: "FCO Coordinator/PE").full_data_access?
+    assert User.new(designation: "FCO- Coordinator").full_data_access?
+
+    assert_not User.new(designation: "PMU Coordinator -Shahdol").full_data_access?
+    assert_not User.new(department: "GIS").full_data_access?
+    assert_not User.new(department: "Water Resource Development").full_data_access?
+    assert_not User.new(office_type: "FCO-Rajpur").full_data_access?
+    assert_not User.new(office_name: "FCO-Bhabra").full_data_access?
+  end
 end
