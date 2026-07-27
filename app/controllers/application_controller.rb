@@ -16,7 +16,7 @@ class ApplicationController < ActionController::Base
   def require_login
     return if current_user
 
-    redirect_to ess_login_path, alert: "Please open Document Portal from ESS."
+    redirect_to ess_login_path, alert: "Please open GeoHub from ESS."
   end
 
   def require_admin

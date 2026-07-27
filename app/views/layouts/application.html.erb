@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Document Portal" %></title>
+    <title><%= content_for(:title) || "GeoHub" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Document Portal">
+    <meta name="application-name" content="GeoHub">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -27,8 +27,8 @@
     <% if current_user %>
       <header class="topbar">
         <%= link_to root_path, class: "topbar-brand" do %>
-          <span>DP</span>
-          <strong>Document Portal</strong>
+          <span>GH</span>
+          <strong>GeoHub</strong>
         <% end %>
         <nav>
           <span><%= current_user.name %> · <%= current_user.effective_role.titleize %></span>

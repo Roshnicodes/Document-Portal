@@ -22,6 +22,26 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal @user.id, session[:user_id]
   end
 
+  test "signed ESS login makes employee code 397 admin" do
+    admin = User.create!(
+      name: "ESS Admin",
+      email: "ess.admin@example.com",
+      role: "user",
+      password: "password123",
+      employee_code: User::ADMIN_EMPLOYEE_CODE
+    )
+    admin.update_column(:role, "user")
+
+    with_ess_secret do
+      get signed_ess_login_path(admin.employee_code, signed_params(admin.employee_code))
+    end
+
+    assert_redirected_to root_path
+    assert_equal admin.id, session[:user_id]
+    assert_equal "admin", admin.reload.role
+    assert admin.admin?
+  end
+
   test "signed ESS login rejects unknown employee code" do
     with_ess_secret do
       get signed_ess_login_path("999999", signed_params("999999"))
@@ -53,7 +73,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     get ess_login_path
 
     assert_response :unauthorized
-    assert_includes response.body, "Please open Document Portal from ESS."
+    assert_includes response.body, "Please open GeoHub from ESS."
   end
 
   private

@@ -7,7 +7,7 @@ class SessionsController < ApplicationController
     employee_code = ess_employee_code
 
     if employee_code.blank?
-      render plain: "Please open Document Portal from ESS.", status: :unauthorized
+      render plain: "Please open GeoHub from ESS.", status: :unauthorized
       return
     end
 
@@ -23,7 +23,7 @@ class SessionsController < ApplicationController
       session[:user_id] = user.id
       redirect_to root_path, notice: "Welcome, #{user.name}."
     else
-      redirect_to ess_login_path, alert: "Employee is not available in Document Portal."
+      redirect_to ess_login_path, alert: "Employee is not available in GeoHub."
     end
   end
 
