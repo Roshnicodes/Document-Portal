@@ -37,32 +37,6 @@
         <% end %>
       <% end %>
 
-      <div class="form-divider"></div>
-
-      <label>
-        Current password
-        <%= form.password_field :current_password, autocomplete: "current-password", placeholder: "Current password" %>
-      </label>
-      <% if @user.errors[:current_password].any? %>
-        <p class="field-error"><%= @user.errors[:current_password].to_sentence %></p>
-      <% end %>
-
-      <label>
-        New password
-        <%= form.password_field :password, autocomplete: "new-password", placeholder: "New password" %>
-      </label>
-      <% if @user.errors[:password].any? %>
-        <p class="field-error"><%= @user.errors[:password].to_sentence %></p>
-      <% end %>
-
-      <label>
-        Confirm new password
-        <%= form.password_field :password_confirmation, autocomplete: "new-password", placeholder: "Confirm new password" %>
-      </label>
-      <% if @user.errors[:password_confirmation].any? %>
-        <p class="field-error"><%= @user.errors[:password_confirmation].to_sentence %></p>
-      <% end %>
-
       <%= form.submit "Save changes", class: "btn btn-primary" %>
     <% end %>
   </div>
