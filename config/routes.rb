@@ -5,10 +5,11 @@ Rails.application.routes.draw do
   get "ess/login", to: "sessions#ess_login", as: :ess_login
   get "ess/login/:employee_code", to: "sessions#ess_login", as: :signed_ess_login
   get "users/sign_in/:employee_code", to: "sessions#ess_login", as: :external_employee_sign_in
+  post "ess/dev_login", to: "sessions#development_login", as: :development_login if Rails.env.development?
   delete "logout", to: "sessions#destroy"
   resource :profile, only: %i[edit update]
 
-  resources :documents, only: %i[index show destroy] do
+  resources :documents, only: %i[index show create destroy] do
     collection do
       post :request_folder_otp
       get :verify_folder

@@ -122,6 +122,58 @@
 
   <% if admin_user? %>
     <div class="panel activity-panel">
+      <div class="admin-upload">
+        <div class="panel-heading upload-heading">
+          <div>
+            <h2>Upload GIS data</h2>
+            <span>Admin import</span>
+          </div>
+        </div>
+
+        <%= form_with url: documents_path, method: :post, local: true, multipart: true, class: "admin-upload-form" do %>
+          <label class="file-drop zip-upload-drop">
+            <span>GIS ZIP archive</span>
+            <%= file_field_tag :gis_archive,
+                               id: "gis-archive-input",
+                               accept: ".zip,application/zip,application/x-zip-compressed",
+                               required: true %>
+            <small data-archive-upload-summary>Upload the complete GIS folder as one ZIP file.</small>
+          </label>
+
+          <label class="checkbox-field">
+            <%= check_box_tag :replace_stale, "1", false %>
+            <span>Delete old GIS records missing from this folder</span>
+          </label>
+
+          <%= submit_tag "Upload data", class: "btn btn-primary" %>
+        <% end %>
+      </div>
+
+      <script>
+        (() => {
+          const form = document.currentScript.parentElement.querySelector(".admin-upload-form");
+          const archiveInput = form.querySelector("#gis-archive-input");
+          const archiveSummary = form.querySelector("[data-archive-upload-summary]");
+
+          archiveInput.addEventListener("change", () => {
+            archiveInput.setCustomValidity("");
+            archiveSummary.textContent = archiveInput.files.length > 0 ? archiveInput.files[0].name : "Upload the complete GIS folder as one ZIP file.";
+          });
+
+          form.addEventListener("submit", (event) => {
+            if (archiveInput.files.length === 0) {
+              archiveInput.setCustomValidity("Select a GIS ZIP archive.");
+              archiveInput.reportValidity();
+              event.preventDefault();
+            } else {
+              archiveInput.setCustomValidity("");
+            }
+          });
+        })();
+      </script>
+
+      <div class="panel-divider"></div>
+
       <div class="panel-heading">
         <h2>Recent OTP requests</h2>
         <span>Live log</span>

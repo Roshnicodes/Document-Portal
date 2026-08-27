@@ -29,12 +29,10 @@
 }
 
 html {
-  height: 100%;
   min-height: 100%;
 }
 
 body {
-  height: 100%;
   min-height: 100vh;
   margin: 0;
   color: var(--ink);
@@ -43,12 +41,13 @@ body {
     radial-gradient(circle at 12% 20%, rgba(14, 165, 233, 0.2), transparent 28rem),
     radial-gradient(circle at 85% 8%, rgba(234, 179, 8, 0.2), transparent 24rem),
     linear-gradient(135deg, #f8fafc 0%, #edf7f5 48%, #fff7ed 100%);
+  overflow-x: hidden;
 }
 
 .app-body {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  display: block;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 a {
@@ -95,38 +94,33 @@ textarea {
 
 .app-container {
   position: relative;
-  width: min(1180px, calc(100% - 32px));
+  width: min(1280px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 24px 0 56px;
+  padding: 26px 0 64px;
 }
 
 .app-body .app-container {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  scrollbar-gutter: stable;
+  min-height: auto;
+  overflow: visible;
 }
 
 .topbar {
   position: sticky;
-  z-index: 10;
+  z-index: 30;
   top: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px max(16px, calc((100vw - 1180px) / 2));
-  background: rgba(255, 255, 255, 0.72);
+  padding: 13px max(20px, calc((100vw - 1280px) / 2));
+  background: rgba(248, 250, 252, 0.84);
   border-bottom: 1px solid rgba(223, 231, 240, 0.8);
+  box-shadow: 0 14px 38px rgba(23, 38, 59, 0.08);
   backdrop-filter: blur(18px);
 }
 
 .app-body .topbar {
-  position: relative;
-  flex: 0 0 auto;
+  position: sticky;
 }
 
 .topbar-brand,
@@ -141,6 +135,12 @@ textarea {
 
 .topbar-brand {
   gap: 10px;
+  min-width: 0;
+}
+
+.topbar-brand strong {
+  color: #1f2937;
+  font-size: 1rem;
 }
 
 .topbar-brand span,
@@ -161,6 +161,15 @@ textarea {
   gap: 12px;
   color: var(--muted);
   font-size: 0.95rem;
+}
+
+.topbar nav > span {
+  color: #64748b;
+  line-height: 1.35;
+}
+
+.topbar nav form {
+  display: inline-flex;
 }
 
 .login-shell {
@@ -251,11 +260,11 @@ h3 {
 .auth-card,
 .panel,
 .stat-card {
-  border: 1px solid rgba(223, 231, 240, 0.92);
+  border: 1px solid rgba(203, 213, 225, 0.72);
   border-radius: 8px;
-  background: var(--panel);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 18px 52px rgba(23, 38, 59, 0.1);
+  backdrop-filter: blur(20px);
 }
 
 .auth-card {
@@ -381,16 +390,15 @@ textarea:focus {
   align-items: flex-end;
   justify-content: space-between;
   gap: 20px;
-  flex: 0 0 auto;
-  min-height: 190px;
-  margin-top: 16px;
-  padding: clamp(24px, 5vw, 42px);
+  min-height: 168px;
+  margin-top: 12px;
+  padding: clamp(24px, 4vw, 36px);
   border-radius: 8px;
   color: var(--white);
   background:
-    linear-gradient(120deg, rgba(15, 23, 42, 0.78), rgba(15, 118, 110, 0.58)),
+    linear-gradient(120deg, rgba(15, 23, 42, 0.8), rgba(15, 118, 110, 0.62)),
     url("https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=1400&q=80") center/cover;
-  box-shadow: var(--shadow);
+  box-shadow: 0 22px 54px rgba(23, 38, 59, 0.16);
   animation: riseIn 480ms ease both;
 }
 
@@ -401,20 +409,24 @@ textarea:focus {
 
 .page-hero p {
   max-width: 680px;
-  margin: 14px 0 0;
-  line-height: 1.7;
+  margin: 12px 0 0;
+  line-height: 1.6;
+}
+
+.page-hero h1 {
+  font-size: clamp(2.1rem, 4.5vw, 4rem);
 }
 
 .stats-grid {
-  flex: 0 0 auto;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  margin: 18px 0;
+  gap: 14px;
+  margin: 16px 0;
 }
 
 .stat-card {
-  padding: 20px;
+  padding: 18px;
+  overflow: hidden;
 }
 
 .stat-card span,
@@ -429,14 +441,13 @@ textarea:focus {
 .stat-card strong {
   display: block;
   margin-top: 8px;
-  font-size: 1.7rem;
+  font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+  line-height: 1.1;
 }
 
 .content-grid {
-  flex: 1 1 auto;
-  min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.8fr);
+  grid-template-columns: minmax(0, 1.75fr) minmax(330px, 0.85fr);
   gap: 18px;
   align-items: start;
 }
@@ -446,7 +457,7 @@ textarea:focus {
 }
 
 .panel {
-  padding: 20px;
+  padding: 22px;
 }
 
 .panel-heading {
@@ -462,15 +473,77 @@ textarea:focus {
 .content-grid > .panel:first-child,
 .activity-panel {
   max-height: none;
-  min-height: 0;
+  display: block;
+}
+
+.activity-panel {
+  position: sticky;
+  top: 92px;
+  max-height: calc(100vh - 112px);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.admin-upload {
+  display: grid;
+  gap: 14px;
+}
+
+.upload-heading {
+  margin-bottom: 0;
+}
+
+.admin-upload-form {
+  display: grid;
+  gap: 14px;
+}
+
+.upload-choice-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.admin-upload-form .file-drop {
+  display: grid;
+  gap: 12px;
+  min-height: 130px;
+  cursor: pointer;
+}
+
+.admin-upload-form input[type="file"] {
+  padding: 11px;
+  border-style: solid;
+  background: rgba(255, 255, 255, 0.92);
+  font-size: 0.9rem;
+}
+
+.checkbox-field {
   display: flex;
-  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.checkbox-field input {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  padding: 0;
+  accent-color: var(--primary);
+}
+
+.panel-divider {
+  height: 1px;
+  margin: 20px 0;
+  background: var(--line);
 }
 
 .activity-list {
-  min-height: 0;
-  overflow-y: auto;
-  padding-right: 4px;
+  padding-right: 0;
 }
 
 .folder-list {
@@ -534,7 +607,7 @@ textarea:focus {
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  color: var(--text);
+  color: var(--ink);
   background: rgba(255, 255, 255, 0.82);
   font: inherit;
 }
@@ -775,21 +848,18 @@ textarea:focus {
   overflow-wrap: anywhere;
 }
 
-.app-body .app-container::-webkit-scrollbar,
-.activity-list::-webkit-scrollbar {
+.activity-panel::-webkit-scrollbar {
   width: 10px;
 }
 
-.app-body .app-container::-webkit-scrollbar-thumb,
-.activity-list::-webkit-scrollbar-thumb {
+.activity-panel::-webkit-scrollbar-thumb {
   border: 3px solid transparent;
   border-radius: 999px;
   background: rgba(15, 118, 110, 0.32);
   background-clip: padding-box;
 }
 
-.app-body .app-container::-webkit-scrollbar-track,
-.activity-list::-webkit-scrollbar-track {
+.activity-panel::-webkit-scrollbar-track {
   background: transparent;
 }
 
@@ -942,10 +1012,6 @@ textarea:focus {
 }
 
 @media (max-width: 860px) {
-  .app-body .app-container {
-    overflow-y: auto;
-  }
-
   .login-shell,
   .content-grid,
   .stats-grid {
@@ -973,7 +1039,7 @@ textarea:focus {
   }
 
   .page-hero {
-    min-height: 220px;
+    min-height: 180px;
   }
 
   .content-grid > .panel:first-child,
@@ -982,8 +1048,9 @@ textarea:focus {
     min-height: 0;
   }
 
-  .activity-list {
-    max-height: 52vh;
+  .activity-panel {
+    position: static;
+    overflow: visible;
   }
 
   .document-row {
@@ -1017,7 +1084,7 @@ textarea:focus {
 
 @media (max-width: 520px) {
   .app-container {
-    width: min(100% - 20px, 1180px);
+    width: min(100% - 20px, 1280px);
     padding: 16px 0 32px;
   }
 

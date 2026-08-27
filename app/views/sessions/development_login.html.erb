@@ -1,0 +1,42 @@
+<% content_for :title, "Local Login | GeoHub" %>
+
+<section class="login-shell">
+  <div class="brand-panel">
+    <div class="brand-mark">GH</div>
+    <p class="eyebrow">Development</p>
+    <h1>GeoHub local access</h1>
+    <p class="lead">Use an employee code from your local database.</p>
+  </div>
+
+  <div class="auth-card">
+    <p class="eyebrow">Local login</p>
+    <h2>Continue without ESS</h2>
+    <p>Server login remains controlled by ESS.</p>
+
+    <%= form_with url: development_login_path, method: :post, local: true, class: "form-stack" do |form| %>
+      <label>
+        Employee code
+        <%= form.text_field :employee_code,
+                            required: true,
+                            autofocus: true,
+                            list: "local-employee-codes",
+                            placeholder: User::ADMIN_EMPLOYEE_CODE %>
+      </label>
+
+      <% if @users.any? %>
+        <datalist id="local-employee-codes">
+          <% @users.each do |user| %>
+            <option value="<%= user.employee_code %>"><%= user.name %> · <%= user.effective_role.titleize %></option>
+          <% end %>
+        </datalist>
+      <% else %>
+        <div class="demo-logins">
+          <span>No local employees found.</span>
+          <span>Import employees first, then use their employee code here.</span>
+        </div>
+      <% end %>
+
+      <%= form.submit "Login", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</section>

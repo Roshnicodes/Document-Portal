@@ -7,6 +7,12 @@ class SessionsController < ApplicationController
     employee_code = ess_employee_code
 
     if employee_code.blank?
+      if development_login_enabled?
+        @users = User.where.not(employee_code: [ nil, "" ]).order(:employee_code, :name)
+        render :development_login
+        return
+      end
+
       render plain: "Please open GeoHub from ESS.", status: :unauthorized
       return
     end
@@ -19,11 +25,23 @@ class SessionsController < ApplicationController
     user = User.find_by(employee_code: employee_code)
 
     if user
-      user.ensure_canonical_role!
-      session[:user_id] = user.id
+      sign_in(user)
       redirect_to root_path, notice: "Welcome, #{user.name}."
     else
       redirect_to ess_login_path, alert: "Employee is not available in GeoHub."
+    end
+  end
+
+  def development_login
+    return head :not_found unless development_login_enabled?
+
+    user = User.find_by(employee_code: ess_employee_code)
+
+    if user
+      sign_in(user)
+      redirect_to root_path, notice: "Local login active for #{user.name}."
+    else
+      redirect_to ess_login_path, alert: "Employee code is not available in local GeoHub."
     end
   end
 
@@ -35,7 +53,7 @@ class SessionsController < ApplicationController
   private
 
   def ess_employee_code
-    params[:employee_code].presence || params[:emp_code].presence
+    (params[:employee_code].presence || params[:emp_code].presence).to_s.squish.presence
   end
 
   def valid_ess_signature?(employee_code)
@@ -63,5 +81,14 @@ class SessionsController < ApplicationController
   def secure_compare(value, expected)
     value.bytesize == expected.bytesize &&
       ActiveSupport::SecurityUtils.secure_compare(value, expected)
+  end
+
+  def sign_in(user)
+    user.ensure_canonical_role!
+    session[:user_id] = user.id
+  end
+
+  def development_login_enabled?
+    Rails.env.development?
   end
 end

@@ -1,11 +1,13 @@
 require "zip"
+require_dependency Rails.root.join("app/services/gis_importer").to_s
 require_dependency Rails.root.join("app/services/sms_otp_service").to_s
 require Rails.root.join("app/services/admin_otp_delivery").to_s
 
 class DocumentsController < ApplicationController
   before_action :require_login
   before_action :set_document, only: %i[show destroy request_otp verify confirm_otp download]
-  before_action :require_admin, only: %i[destroy]
+  before_action :require_admin, only: %i[create destroy]
+  before_action :set_upload_error_flash, only: :index
 
   def index
     documents_scope = visible_documents_scope(Document.includes(:uploaded_by, file_attachment: :blob)).order(created_at: :desc)
@@ -30,6 +32,14 @@ class DocumentsController < ApplicationController
   end
 
   def show
+  end
+
+  def create
+    result = import_uploaded_gis_data
+
+    redirect_to root_path, notice: gis_upload_notice(result)
+  rescue ArgumentError, Zip::Error, ActiveRecord::RecordInvalid => error
+    redirect_to root_path, alert: "GIS upload failed: #{error.message}"
   end
 
   def destroy
@@ -377,6 +387,27 @@ class DocumentsController < ApplicationController
 
   def deliver_admin_otp(request)
     AdminOtpDelivery.deliver!(download_request: request, otp: request.plain_otp)
+  end
+
+  def import_uploaded_gis_data
+    remove_stale = params[:replace_stale].present?
+
+    return GisImporter.import_archive!(params[:gis_archive], uploaded_by: current_user, remove_stale: remove_stale) if params[:gis_archive].present?
+
+    raise ArgumentError, "Please select a GIS ZIP archive to upload."
+  end
+
+  def set_upload_error_flash
+    return unless params[:upload_error] == "too_many_upload_parts"
+
+    flash.now[:alert] = "Please upload the GIS data as one ZIP archive. Direct folder upload is disabled because large folders create too many upload parts."
+  end
+
+  def gis_upload_notice(result)
+    notice = "GIS upload complete. Imported #{result.imported} files and skipped #{result.skipped} files."
+    return notice unless result.stale_removed.positive?
+
+    "#{notice} Removed #{result.stale_removed} old GIS records."
   end
 
   def otp_delivery_notice(delivery_channel, folder: false)
